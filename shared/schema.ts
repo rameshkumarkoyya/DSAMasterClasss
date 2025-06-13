@@ -24,11 +24,12 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table for Replit Auth
+// User storage table
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
+  id: serial("id").primaryKey(),
+  email: varchar("email").unique().notNull(),
+  password: varchar("password"), // For JWT auth
+  firstName: varchar("first_name").notNull(),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   level: integer("level").default(1),
@@ -205,6 +206,7 @@ export const insertUserProgressSchema = createInsertSchema(userProgress).omit({
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
+export type InsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type Topic = typeof topics.$inferSelect;
 export type InsertTopic = z.infer<typeof insertTopicSchema>;
