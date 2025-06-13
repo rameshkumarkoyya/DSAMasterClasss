@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/useAuth";
+import { useSimpleAuth } from "@/hooks/useSimpleAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -7,19 +7,12 @@ import { Code, Search, Bell } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Header() {
-  // Demo user data without authentication
-  const user = {
-    firstName: "Demo",
-    lastName: "User",
-    email: "demo@example.com",
-    profileImageUrl: null
-  };
+  const { user, logout } = useSimpleAuth();
   
-  // Demo stats without authentication
-  const stats = {
-    level: 2,
-    totalXP: 75
-  };
+  const { data: stats } = useQuery({
+    queryKey: ['/api/user-stats'],
+    enabled: !!user
+  });
 
   const getInitials = (firstName?: string, lastName?: string) => {
     return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase() || 'U';
@@ -94,7 +87,7 @@ export default function Header() {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => window.location.href = '/api/logout'}
+                  onClick={logout}
                   className="text-gray-600 hover:text-gray-900"
                 >
                   Sign Out

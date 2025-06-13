@@ -85,6 +85,8 @@ export function useSimpleAuth() {
     localStorage.removeItem('auth_token');
     setUser(null);
     setIsAuthenticated(false);
+    // Force a page reload to ensure clean state
+    window.location.reload();
   };
 
   return {

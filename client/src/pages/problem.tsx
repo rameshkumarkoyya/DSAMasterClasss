@@ -146,7 +146,7 @@ export default function Problem() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="flex h-screen pt-16">
+        <div className="flex pt-16 min-h-screen">
           <Sidebar />
           <main className="flex-1 flex items-center justify-center">
             <div>Loading problem...</div>
@@ -160,7 +160,7 @@ export default function Problem() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="flex h-screen pt-16">
+        <div className="flex pt-16 min-h-screen">
           <Sidebar />
           <main className="flex-1 flex items-center justify-center">
             <div>Problem not found</div>
@@ -173,7 +173,7 @@ export default function Problem() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="flex h-screen pt-16">
+      <div className="flex pt-16 min-h-screen">
         <Sidebar />
         
         <main className="flex-1 flex flex-col overflow-hidden">
