@@ -7,7 +7,7 @@ import { ChevronDown, ChevronRight, List, Link, Layers, GitBranch } from "lucide
 import { useLocation } from "wouter";
 
 const topicIcons: Record<string, any> = {
-  'Arrays & Strings': List,
+  'Arrays': List,
   'Linked Lists': Link,
   'Stacks & Queues': Layers,
   'Trees & Graphs': GitBranch,
@@ -15,6 +15,7 @@ const topicIcons: Record<string, any> = {
 
 export default function Sidebar() {
   const [expandedTopics, setExpandedTopics] = useState<Set<number>>(new Set([1]));
+  const [expandedPatterns, setExpandedPatterns] = useState<Set<string>>(new Set(['Two Pointers']));
   const [, setLocation] = useLocation();
 
   const { data: topics, isLoading: topicsLoading } = useQuery({
@@ -37,6 +38,16 @@ export default function Sidebar() {
       newExpanded.add(topicId);
     }
     setExpandedTopics(newExpanded);
+  };
+
+  const togglePattern = (pattern: string) => {
+    const newExpanded = new Set(expandedPatterns);
+    if (newExpanded.has(pattern)) {
+      newExpanded.delete(pattern);
+    } else {
+      newExpanded.add(pattern);
+    }
+    setExpandedPatterns(newExpanded);
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -181,14 +192,14 @@ function SampleProblems({ topicId, onProblemClick }: { topicId: number; onProble
     }
   };
 
-  const getPatternColor = (pattern: string) => {
+  const getPatternHighlight = (pattern: string) => {
     switch (pattern) {
-      case 'Two Pointers': return 'bg-gradient-to-r from-blue-600/40 to-cyan-600/40 border-blue-400/60';
-      case 'Merge Intervals': return 'bg-gradient-to-r from-green-600/40 to-emerald-600/40 border-green-400/60';
-      case 'Sorting': return 'bg-gradient-to-r from-purple-600/40 to-pink-600/40 border-purple-400/60';
-      case 'Sliding Window': return 'bg-gradient-to-r from-orange-600/40 to-red-600/40 border-orange-400/60';
-      case 'Prefix Sums': return 'bg-gradient-to-r from-yellow-600/40 to-amber-600/40 border-yellow-400/60';
-      default: return 'bg-gradient-to-r from-gray-600/40 to-slate-600/40 border-gray-400/60';
+      case 'Two Pointers': return 'text-blue-400';
+      case 'Merge Intervals': return 'text-green-400';
+      case 'Sorting': return 'text-purple-400';
+      case 'Sliding Window': return 'text-orange-400';
+      case 'Prefix Sums': return 'text-yellow-400';
+      default: return 'text-gray-400';
     }
   };
 
@@ -199,37 +210,42 @@ function SampleProblems({ topicId, onProblemClick }: { topicId: number; onProble
         if (!patternProblems || patternProblems.length === 0) return null;
 
         return (
-          <div key={pattern} className={`${getPatternColor(pattern)} rounded-lg border-2 backdrop-blur-sm p-3 shadow-lg`}>
-            <div className="flex items-center space-x-2 mb-3">
-              <span className="text-lg">{getPatternIcon(pattern)}</span>
-              <h4 className="font-bold text-white text-sm">{pattern}</h4>
-              <Badge variant="outline" className="text-xs bg-white/20 text-white border-white/40 font-semibold">
+          <div key={pattern} className="bg-slate-800/50 rounded-lg border border-slate-700/50 backdrop-blur-sm p-3">
+            <div 
+              className="flex items-center space-x-2 mb-2 cursor-pointer hover:bg-slate-700/30 rounded p-2 -m-2"
+              onClick={() => togglePattern(pattern)}
+            >
+              {expandedPatterns.has(pattern) ? (
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              )}
+              <span className="text-sm">{getPatternIcon(pattern)}</span>
+              <h4 className={`font-semibold text-sm ${getPatternHighlight(pattern)}`}>{pattern}</h4>
+              <Badge variant="outline" className="text-xs bg-slate-700/40 text-gray-300 border-slate-600/40">
                 {patternProblems.length}
               </Badge>
             </div>
-            <div className="space-y-2">
-              {patternProblems.slice(0, 3).map((problem: any) => (
-                <Button
-                  key={problem.id}
-                  variant="ghost"
-                  className="w-full px-3 py-2 text-xs text-left flex items-center justify-between hover:bg-white/20 h-auto bg-white/10 rounded-md transition-all duration-200"
-                  onClick={() => onProblemClick(`/problems/${problem.id}`)}
-                >
-                  <span className="text-white font-medium truncate">{problem.title}</span>
-                  <Badge
-                    variant="outline"
-                    className={`text-xs ${getDifficultyColor(problem.difficulty)} ml-2 flex-shrink-0`}
+            {expandedPatterns.has(pattern) && (
+              <div className="space-y-1 ml-6">
+                {patternProblems.map((problem: any) => (
+                  <Button
+                    key={problem.id}
+                    variant="ghost"
+                    className="w-full px-3 py-2 text-xs text-left flex items-center justify-between hover:bg-slate-700/40 h-auto bg-slate-800/30 rounded-md transition-all duration-200"
+                    onClick={() => onProblemClick(`/problems/${problem.id}`)}
                   >
-                    {problem.difficulty}
-                  </Badge>
-                </Button>
-              ))}
-              {patternProblems.length > 3 && (
-                <div className="text-xs text-white/80 text-center py-1 font-medium">
-                  +{patternProblems.length - 3} more problems
-                </div>
-              )}
-            </div>
+                    <span className="text-gray-300 font-medium truncate">{problem.title}</span>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs ${getDifficultyColor(problem.difficulty)} ml-2 flex-shrink-0`}
+                    >
+                      {problem.difficulty}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         );
       })}
