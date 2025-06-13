@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams } from "wouter";
-import { useAuth } from "@/hooks/useAuth";
+import { useSimpleAuth } from "@/hooks/useSimpleAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
-import ProblemDescription from "@/components/problem-description";
 import CodeEditor from "@/components/code-editor";
 import AchievementModal from "@/components/achievement-modal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Problem() {
-  const { problemId } = useParams();
+  const params = useParams();
+  const problemId = params.problemId;
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useSimpleAuth();
   const [showAchievement, setShowAchievement] = useState(false);
   const [achievementData, setAchievementData] = useState<any>(null);
   const queryClient = useQueryClient();
@@ -171,45 +171,20 @@ export default function Problem() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-900">
       <Header />
       <div className="flex pt-16 min-h-screen">
         <Sidebar />
         
-        <main className="flex-1 flex flex-col overflow-hidden">
-          {/* Problem Header */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <h1 className="text-xl font-semibold text-gray-900">{problem.title}</h1>
-                <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                  problem.difficulty === 'Easy' 
-                    ? 'bg-green-50 text-green-600'
-                    : problem.difficulty === 'Medium' 
-                    ? 'bg-yellow-50 text-yellow-600'
-                    : 'bg-red-50 text-red-600'
-                }`}>
-                  {problem.difficulty}
-                </span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">👍 {problem.likes || 0}</span>
-                  <span className="text-sm text-gray-600">👎 {problem.dislikes || 0}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 flex">
-            <ProblemDescription problem={problem} />
-            <CodeEditor 
-              problem={problem}
-              onRunCode={handleRunCode}
-              onSubmitCode={handleSubmitCode}
-              isRunning={executeMutation.isPending}
-              isSubmitting={submitMutation.isPending}
-              executionResult={executeMutation.data}
-            />
-          </div>
+        <main className="flex-1 overflow-hidden">
+          <CodeEditor 
+            problem={problem}
+            onRunCode={handleRunCode}
+            onSubmitCode={handleSubmitCode}
+            isRunning={executeMutation.isPending}
+            isSubmitting={submitMutation.isPending}
+            executionResult={executeMutation.data}
+          />
         </main>
       </div>
 
