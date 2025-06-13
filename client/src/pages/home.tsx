@@ -18,6 +18,7 @@ export default function Home() {
 
   const { data: topics, isLoading: topicsLoading } = useQuery({
     queryKey: ["/api/topics"],
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   const progressPercentage = Math.round((stats.solvedProblems / stats.totalProblems) * 100);
