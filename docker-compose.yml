@@ -2,42 +2,35 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
-      POSTGRES_DB: dsa_platform
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: codemaster
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: codemaster
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U codemaster"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   app:
     build: .
     ports:
       - "5000:5000"
     environment:
-      DATABASE_URL: postgresql://postgres:password@postgres:5432/dsa_platform
-      PGHOST: postgres
-      PGPORT: 5432
-      PGUSER: postgres
-      PGPASSWORD: password
-      PGDATABASE: dsa_platform
-      SESSION_SECRET: dev-session-secret-key
-      NODE_ENV: development
+      DATABASE_URL: postgresql://codemaster:password123@postgres:5432/codemaster
+      JWT_SECRET: super-secret-jwt-key-for-development
+      NODE_ENV: production
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - .:/app
       - /app/node_modules
-    working_dir: /app
-    command: npm run dev
 
 volumes:
   postgres_data:

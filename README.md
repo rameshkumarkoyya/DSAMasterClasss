@@ -1,15 +1,23 @@
-# DSA Learning Platform
+# CodeMaster - DSA Learning Platform
 
-A comprehensive Data Structures & Algorithms learning platform with Java programming support, featuring interactive coding challenges, user progress tracking, and a modern web interface.
+A comprehensive Data Structures and Algorithms learning platform with interactive coding problems, real-time code execution, and progress tracking.
 
 ## Features
 
-- 🎯 **Interactive Coding Problems** - Practice DSA concepts with real Java coding challenges
-- 📚 **Comprehensive Topics** - Arrays, Strings, Linked Lists, Trees, Graphs, Dynamic Programming, and more
-- 🎨 **Modern UI** - Clean, responsive interface built with React and Tailwind CSS
-- 📊 **Progress Tracking** - Monitor your learning journey with detailed statistics
-- 🏆 **Achievement System** - Earn XP and unlock achievements as you progress
-- 💾 **Persistent Storage** - PostgreSQL database for reliable data storage
+- **Interactive Problem Solving**: Over 50+ DSA problems with detailed explanations
+- **Real-time Code Editor**: Java code editor with syntax highlighting and auto-completion
+- **Test Case Execution**: Run code against multiple test cases with detailed feedback
+- **Progress Tracking**: Monitor your learning progress and achievements
+- **Authentication**: Secure user authentication with JWT tokens
+- **Responsive Design**: Modern UI that works on all devices
+
+## Tech Stack
+
+- **Frontend**: React, TypeScript, Tailwind CSS, Shadcn/UI
+- **Backend**: Node.js, Express.js, TypeScript
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: JWT-based authentication
+- **Code Execution**: Real-time Java code execution system
 
 ## Quick Start
 
@@ -17,119 +25,110 @@ A comprehensive Data Structures & Algorithms learning platform with Java program
 
 - Node.js (v18 or higher)
 - PostgreSQL database
+- Git
 
 ### One-Command Setup
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/dsa-learning-platform.git
-cd dsa-learning-platform
+git clone <your-repo-url>
+cd codemaster
+npm run setup
 ```
 
-2. Run the one-command setup:
-```bash
-./start.sh
-```
+This will:
+1. Install all dependencies
+2. Set up the database schema
+3. Seed the database with problems
+4. Start the development server
 
-Or use Node.js setup:
-```bash
-node setup.js
-```
+### Manual Setup
 
-This single command will:
-- Install all dependencies
-- Set up the PostgreSQL database
-- Run database migrations
-- Seed the database with sample data
-- Start the development server
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd codemaster
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Update `.env` with your database credentials:
+   ```
+   DATABASE_URL=postgresql://username:password@localhost:5432/codemaster
+   JWT_SECRET=your-jwt-secret-key
+   ```
+
+4. **Database Setup**
+   ```bash
+   npm run db:push
+   npm run db:seed
+   ```
+
+5. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
 
 The application will be available at `http://localhost:5000`
-
-### Manual Setup (Alternative)
-
-If you prefer to set up manually:
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your database connection details
-```
-
-3. Set up the database:
-```bash
-npm run db:push
-npm run db:seed
-```
-
-4. Start the development server:
-```bash
-npm run dev
-```
-
-## Database Setup
-
-The application uses PostgreSQL. Make sure you have a PostgreSQL database running and update the `DATABASE_URL` in your environment variables.
-
-Example DATABASE_URL format:
-```
-DATABASE_URL=postgresql://username:password@localhost:5432/dsa_platform
-```
-
-## Project Structure
-
-```
-├── client/           # React frontend
-│   ├── src/
-│   │   ├── components/  # Reusable UI components
-│   │   ├── pages/       # Application pages
-│   │   ├── hooks/       # Custom React hooks
-│   │   └── lib/         # Utility functions
-├── server/           # Express backend
-│   ├── index.ts     # Server entry point
-│   ├── routes.ts    # API routes
-│   ├── storage.ts   # Database operations
-│   └── db.ts        # Database connection
-├── shared/           # Shared types and schemas
-│   └── schema.ts    # Database schema and types
-└── package.json     # Dependencies and scripts
-```
 
 ## Available Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
-- `npm run db:push` - Push database schema changes
+- `npm run db:push` - Push schema changes to database
 - `npm run db:seed` - Seed database with sample data
-- `npm run setup` - One-command setup (install + database + seed + start)
+- `npm run setup` - Complete setup (install, db setup, seed, start)
 
-## Topics Covered
+## Project Structure
 
-1. **Arrays & Strings** - Basic data manipulation and string processing
-2. **Linked Lists** - Single and double linked list operations
-3. **Stacks & Queues** - LIFO and FIFO data structures
-4. **Trees & Graphs** - Tree traversals, graph algorithms, and search
-5. **Dynamic Programming** - Optimization problems and memoization
-6. **Sorting & Searching** - Various sorting algorithms and binary search
+```
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Page components
+│   │   ├── hooks/          # Custom React hooks
+│   │   └── lib/            # Utility functions
+├── server/                 # Express backend
+│   ├── routes.ts           # API routes
+│   ├── storage.ts          # Database operations
+│   └── db.ts               # Database connection
+├── shared/                 # Shared types and schemas
+│   └── schema.ts           # Database schema
+└── package.json
+```
 
-## Technology Stack
+## API Endpoints
 
-- **Frontend**: React, TypeScript, Tailwind CSS, Wouter (routing)
-- **Backend**: Node.js, Express, TypeScript
-- **Database**: PostgreSQL with Drizzle ORM
-- **UI Components**: shadcn/ui components
-- **Build Tool**: Vite
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/user` - Get current user
+
+### Problems
+- `GET /api/topics` - Get all topics
+- `GET /api/topics/:id/problems` - Get problems by topic
+- `GET /api/problems/:id` - Get specific problem
+
+### Code Execution
+- `POST /api/execute` - Execute code with test cases
+
+### Progress
+- `GET /api/progress` - Get user progress
+- `POST /api/submissions` - Submit solution
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ## License
