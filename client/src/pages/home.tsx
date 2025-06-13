@@ -24,7 +24,7 @@ export default function Home() {
   const progressPercentage = Math.round((stats.solvedProblems / stats.totalProblems) * 100);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       <Header />
       <div className="flex pt-16 min-h-screen">
         <Sidebar />
@@ -33,66 +33,88 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             {/* Welcome Section */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Welcome back to CodeMaster!
-              </h1>
-              <p className="text-gray-600">
-                Continue your DSA learning journey and master coding interviews.
-              </p>
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-900/50 via-blue-900/50 to-purple-900/50 border border-purple-500/20 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10"></div>
+                <div className="relative p-8">
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
+                    Welcome back to CodeMaster!
+                  </h1>
+                  <p className="text-gray-300 text-lg">
+                    Continue your DSA learning journey and master coding interviews.
+                  </p>
+                  <div className="mt-6 flex space-x-4">
+                    <div className="px-4 py-2 bg-purple-600/20 rounded-lg border border-purple-500/30">
+                      <span className="text-purple-300 text-sm">🎯 Daily Challenge</span>
+                    </div>
+                    <div className="px-4 py-2 bg-blue-600/20 rounded-lg border border-blue-500/30">
+                      <span className="text-blue-300 text-sm">🔥 7 Day Streak</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Stats Cards */}
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    Problems Solved
-                  </CardTitle>
-                  <Target className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {stats.solvedProblems}
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    of {stats.totalProblems} total problems
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                <Card className="relative bg-slate-800/50 border-slate-700/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-300">
+                      Problems Solved
+                    </CardTitle>
+                    <Target className="h-4 w-4 text-green-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">
+                      {stats.solvedProblems}
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      of {stats.totalProblems} total problems
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    Current Level
-                  </CardTitle>
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {stats.level}
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    {stats.totalXP} XP earned
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                <Card className="relative bg-slate-800/50 border-slate-700/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-300">
+                      Current Level
+                    </CardTitle>
+                    <TrendingUp className="h-4 w-4 text-blue-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">
+                      {stats.level}
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      {stats.totalXP} XP earned
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    Topics Completed
-                  </CardTitle>
-                  <Trophy className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {stats.completedTopics}
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    of {Array.isArray(topics) ? topics.length : 6} topics
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                <Card className="relative bg-slate-800/50 border-slate-700/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-300">
+                      Topics Completed
+                    </CardTitle>
+                    <Trophy className="h-4 w-4 text-yellow-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">
+                      {stats.completedTopics}
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      of {Array.isArray(topics) ? topics.length : 6} topics
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
