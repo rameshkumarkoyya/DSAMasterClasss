@@ -52,7 +52,7 @@ export const topics = pgTable("topics", {
 export const problems = pgTable("problems", {
   id: serial("id").primaryKey(),
   topicId: integer("topic_id").references(() => topics.id).notNull(),
-  title: varchar("title", { length: 200 }).notNull(),
+  title: varchar("title", { length: 200 }).notNull().unique(),
   description: text("description").notNull(),
   difficulty: varchar("difficulty", { length: 10 }).notNull(), // Easy, Medium, Hard
   pattern: varchar("pattern", { length: 100 }), // Algorithm pattern/category
