@@ -1,20 +1,58 @@
-import { useEffect } from 'react';
-import { useKeycloak } from '@/hooks/useKeycloak';
+import { useState, useEffect } from 'react';
+import { useSimpleAuth } from '@/hooks/useSimpleAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Code, BookOpen, Trophy } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
-  const { isAuthenticated, isLoading, login, register } = useKeycloak();
+  const { isAuthenticated, isLoading, login, register } = useSimpleAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: ''
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
       setLocation('/');
     }
   }, [isAuthenticated, setLocation]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const { email, password, firstName, lastName } = formData;
+    
+    if (!email || !password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const result = isRegistering 
+      ? await register(email, password, firstName, lastName)
+      : await login(email, password);
+
+    if (!result.success) {
+      toast({
+        title: "Error",
+        description: result.error || "Something went wrong",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -66,30 +104,78 @@ export default function Login() {
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button 
-              onClick={login}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-              size="lg"
-            >
-              Sign In
-            </Button>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {isRegistering && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                    />
+                  </div>
+                </div>
+              )}
+              
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  required
+                />
+              </div>
+
+              <Button 
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                size="lg"
+              >
+                {isRegistering ? 'Create Account' : 'Sign In'}
+              </Button>
+            </form>
             
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">New to DSA Master?</span>
+                <span className="bg-white px-2 text-gray-500">
+                  {isRegistering ? 'Already have an account?' : 'New to DSA Master?'}
+                </span>
               </div>
             </div>
 
             <Button 
-              onClick={register}
+              onClick={() => setIsRegistering(!isRegistering)}
               variant="outline"
               className="w-full"
               size="lg"
             >
-              Create Account
+              {isRegistering ? 'Sign In' : 'Create Account'}
             </Button>
 
             <div className="text-center">
