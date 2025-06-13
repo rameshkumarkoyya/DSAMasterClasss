@@ -24,15 +24,15 @@ export default function CodeEditor({
   isSubmitting, 
   executionResult 
 }: CodeEditorProps) {
-  const [code, setCode] = useState(problem?.starterCode || getDefaultCode());
+  const [code, setCode] = useState("");
   const [language, setLanguage] = useState("java");
   const [activeTab, setActiveTab] = useState("problem");
   const [editorTab, setEditorTab] = useState("code");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (problem?.starterCode) {
-      setCode(problem.starterCode);
+    if (problem) {
+      setCode(getJavaStarterCode(problem));
     }
   }, [problem]);
 
@@ -87,6 +87,194 @@ class Solution {
     { name: "StringBuilder", code: "StringBuilder sb = new StringBuilder();" }
   ];
 
+  const getSolutionContent = (problem: any) => {
+    if (!problem) return <p>Loading solution...</p>;
+
+    const solutionApproaches: any = {
+      "Two Sum": {
+        title: "Hash Map Approach",
+        description: "Use a hash map to store numbers and their indices for O(1) lookup time.",
+        algorithm: [
+          "Create a hash map to store number → index mapping",
+          "For each number in the array:",
+          "• Calculate the complement (target - current number)",
+          "• Check if complement exists in the hash map",
+          "• If found, return both indices",
+          "• If not found, add current number and index to hash map"
+        ]
+      },
+      "3Sum": {
+        title: "Two Pointers Approach",
+        description: "Sort the array and use two pointers technique to find triplets that sum to zero.",
+        algorithm: [
+          "Sort the array to enable two pointers technique",
+          "For each element as the first element:",
+          "• Use two pointers (left and right) for the remaining array",
+          "• If sum equals target, add to result and move both pointers",
+          "• If sum is less than target, move left pointer right",
+          "• If sum is greater than target, move right pointer left",
+          "• Skip duplicates to avoid duplicate triplets"
+        ]
+      },
+      "3Sum Closest": {
+        title: "Two Pointers with Closest Sum Tracking",
+        description: "Similar to 3Sum but track the closest sum to target instead of exact matches.",
+        algorithm: [
+          "Sort the array for two pointers technique",
+          "Initialize closest sum with first three elements",
+          "For each element as the first element:",
+          "• Use two pointers for remaining elements",
+          "• Calculate current sum and compare with target",
+          "• Update closest sum if current is closer to target",
+          "• Move pointers based on sum comparison with target"
+        ]
+      },
+      "Merge Intervals": {
+        title: "Sort and Merge Approach",
+        description: "Sort intervals by start time and merge overlapping intervals iteratively.",
+        algorithm: [
+          "Sort intervals by their start times",
+          "Initialize result with first interval",
+          "For each subsequent interval:",
+          "• If it overlaps with last merged interval, merge them",
+          "• Otherwise, add it as a new interval to result",
+          "Return the merged intervals"
+        ]
+      }
+    };
+
+    const solution = solutionApproaches[problem.title] || {
+      title: "Algorithm Approach",
+      description: `Solve ${problem.title} using ${problem.pattern} pattern.`,
+      algorithm: problem.hints || ["Analyze the problem requirements", "Choose appropriate data structures", "Implement step by step"]
+    };
+
+    return (
+      <>
+        <h3 className="text-lg font-semibold text-white mb-3">{solution.title}</h3>
+        <p className="mb-4">{solution.description}</p>
+        
+        <h4 className="font-semibold text-white mb-2">Algorithm:</h4>
+        <ol className="space-y-2 ml-4">
+          {solution.algorithm.map((step: string, index: number) => (
+            <li key={index} className={step.startsWith('•') ? 'ml-4' : ''}>{step}</li>
+          ))}
+        </ol>
+      </>
+    );
+  };
+
+  const getJavaStarterCode = (problem: any) => {
+    if (!problem) return getDefaultCode();
+
+    const javaCodeMap: any = {
+      "Two Sum": `import java.util.*;
+
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your solution here
+        Map<Integer, Integer> map = new HashMap<>();
+        
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i];
+            if (map.containsKey(complement)) {
+                return new int[]{map.get(complement), i};
+            }
+            map.put(nums[i], i);
+        }
+        
+        return new int[0];
+    }
+}`,
+      "3Sum": `import java.util.*;
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        // Write your solution here
+        List<List<Integer>> result = new ArrayList<>();
+        Arrays.sort(nums);
+        
+        for (int i = 0; i < nums.length - 2; i++) {
+            if (i > 0 && nums[i] == nums[i-1]) continue;
+            
+            int left = i + 1, right = nums.length - 1;
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                if (sum == 0) {
+                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));
+                    while (left < right && nums[left] == nums[left+1]) left++;
+                    while (left < right && nums[right] == nums[right-1]) right--;
+                    left++;
+                    right--;
+                } else if (sum < 0) {
+                    left++;
+                } else {
+                    right--;
+                }
+            }
+        }
+        
+        return result;
+    }
+}`,
+      "3Sum Closest": `import java.util.*;
+
+class Solution {
+    public int threeSumClosest(int[] nums, int target) {
+        // Write your solution here
+        Arrays.sort(nums);
+        int closestSum = nums[0] + nums[1] + nums[2];
+        
+        for (int i = 0; i < nums.length - 2; i++) {
+            int left = i + 1, right = nums.length - 1;
+            
+            while (left < right) {
+                int currentSum = nums[i] + nums[left] + nums[right];
+                
+                if (Math.abs(currentSum - target) < Math.abs(closestSum - target)) {
+                    closestSum = currentSum;
+                }
+                
+                if (currentSum < target) {
+                    left++;
+                } else {
+                    right--;
+                }
+            }
+        }
+        
+        return closestSum;
+    }
+}`,
+      "Merge Intervals": `import java.util.*;
+
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        // Write your solution here
+        if (intervals.length <= 1) return intervals;
+        
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+        List<int[]> result = new ArrayList<>();
+        int[] current = intervals[0];
+        
+        for (int i = 1; i < intervals.length; i++) {
+            if (current[1] >= intervals[i][0]) {
+                current[1] = Math.max(current[1], intervals[i][1]);
+            } else {
+                result.add(current);
+                current = intervals[i];
+            }
+        }
+        result.add(current);
+        
+        return result.toArray(new int[result.size()][]);
+    }
+}`
+    };
+
+    return javaCodeMap[problem.title] || problem.starterCode || getDefaultCode();
+  };
+
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       {/* Main Content Tabs */}
@@ -115,17 +303,27 @@ class Solution {
           <ScrollArea className="h-full">
             <div className="max-w-4xl mx-auto space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-white mb-2">{problem?.title || "Two Sum"}</h1>
+                <h1 className="text-2xl font-bold text-white mb-2">{problem?.title}</h1>
                 <div className="flex items-center space-x-3 mb-4">
                   <Badge className={`${
                     problem?.difficulty === 'Easy' ? 'bg-green-600' :
                     problem?.difficulty === 'Medium' ? 'bg-yellow-600' : 'bg-red-600'
                   }`}>
-                    {problem?.difficulty || "Easy"}
+                    {problem?.difficulty}
                   </Badge>
                   <Badge variant="outline" className="text-purple-400 border-purple-500">
-                    {problem?.pattern || "Hash Table"}
+                    {problem?.pattern}
                   </Badge>
+                  {problem?.leetcodeUrl && (
+                    <a 
+                      href={problem.leetcodeUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-orange-400 hover:text-orange-300 text-sm"
+                    >
+                      View on LeetCode
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -134,52 +332,73 @@ class Solution {
                   <CardTitle className="text-white">Problem Description</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-gray-300 leading-relaxed">
-                    {problem?.description || "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target."}
+                  <div className="text-gray-300 leading-relaxed whitespace-pre-line">
+                    {problem?.description}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-slate-800/50 border-slate-700/50">
-                <CardHeader>
-                  <CardTitle className="text-white">Examples</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <div className="bg-slate-900/50 p-4 rounded-lg">
-                      <p className="text-sm font-medium text-white mb-2">Example 1:</p>
-                      <div className="space-y-2 text-sm">
-                        <div>
-                          <span className="text-gray-400">Input:</span>
-                          <code className="ml-2 text-blue-400">nums = [2,7,11,15], target = 9</code>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Output:</span>
-                          <code className="ml-2 text-green-400">[0,1]</code>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Explanation:</span>
-                          <span className="ml-2 text-gray-300">Because nums[0] + nums[1] == 9, we return [0, 1].</span>
+              {problem?.examples && problem.examples.length > 0 && (
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Examples</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {problem.examples.map((example: any, index: number) => (
+                      <div key={index} className="bg-slate-900/50 p-4 rounded-lg">
+                        <p className="text-sm font-medium text-white mb-2">Example {index + 1}:</p>
+                        <div className="space-y-2 text-sm">
+                          <div>
+                            <span className="text-gray-400">Input:</span>
+                            <code className="ml-2 text-blue-400">{example.input}</code>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Output:</span>
+                            <code className="ml-2 text-green-400">{example.output}</code>
+                          </div>
+                          {example.explanation && (
+                            <div>
+                              <span className="text-gray-400">Explanation:</span>
+                              <span className="ml-2 text-gray-300">{example.explanation}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
 
-              <Card className="bg-slate-800/50 border-slate-700/50">
-                <CardHeader>
-                  <CardTitle className="text-white">Constraints</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="text-gray-300 space-y-1">
-                    <li>• 2 ≤ nums.length ≤ 10⁴</li>
-                    <li>• -10⁹ ≤ nums[i] ≤ 10⁹</li>
-                    <li>• -10⁹ ≤ target ≤ 10⁹</li>
-                    <li>• Only one valid answer exists</li>
-                  </ul>
-                </CardContent>
-              </Card>
+              {problem?.constraints && (
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Constraints</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-gray-300 whitespace-pre-line">
+                      {problem.constraints}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {problem?.hints && problem.hints.length > 0 && (
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Hints</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="text-gray-300 space-y-2">
+                      {problem.hints.map((hint: string, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-yellow-400 mr-2">💡</span>
+                          <span>{hint}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </ScrollArea>
         </TabsContent>
@@ -194,41 +413,23 @@ class Solution {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-gray-300">
-                    <h3 className="text-lg font-semibold text-white mb-3">Hash Map Approach</h3>
-                    <p className="mb-4">
-                      We can solve this problem efficiently using a hash map to store the numbers we've seen and their indices.
-                    </p>
-                    
-                    <h4 className="font-semibold text-white mb-2">Algorithm:</h4>
-                    <ol className="space-y-2 ml-4">
-                      <li>1. Create a hash map to store number → index mapping</li>
-                      <li>2. For each number in the array:</li>
-                      <li className="ml-4">• Calculate the complement (target - current number)</li>
-                      <li className="ml-4">• Check if complement exists in the hash map</li>
-                      <li className="ml-4">• If found, return both indices</li>
-                      <li className="ml-4">• If not found, add current number and index to hash map</li>
-                      <li>3. Continue until solution is found</li>
-                    </ol>
+                    {getSolutionContent(problem)}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-slate-800/50 border-slate-700/50">
-                <CardHeader>
-                  <CardTitle className="text-white">Step-by-Step Walkthrough</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 text-gray-300">
-                    <div className="bg-slate-900/50 p-4 rounded-lg">
-                      <h4 className="font-semibold text-white mb-2">Example: nums = [2,7,11,15], target = 9</h4>
-                      <div className="space-y-2 text-sm">
-                        <div>Step 1: i=0, num=2, complement=7, map=empty → map=&#123;2:0&#125;</div>
-                        <div>Step 2: i=1, num=7, complement=2, map=&#123;2:0&#125; → Found! Return [0,1]</div>
-                      </div>
+              {problem?.solutionWalkthrough && (
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Step-by-Step Walkthrough</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-gray-300 whitespace-pre-line">
+                      {problem.solutionWalkthrough}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </ScrollArea>
         </TabsContent>
