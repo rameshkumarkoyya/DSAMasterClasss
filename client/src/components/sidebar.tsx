@@ -42,13 +42,13 @@ export default function Sidebar() {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
-        return 'bg-green-50 text-green-600';
+        return 'bg-green-900/20 text-green-400 border-green-500/30';
       case 'Medium':
-        return 'bg-yellow-50 text-yellow-600';
+        return 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30';
       case 'Hard':
-        return 'bg-red-50 text-red-600';
+        return 'bg-red-900/20 text-red-400 border-red-500/30';
       default:
-        return 'bg-gray-50 text-gray-600';
+        return 'bg-gray-900/20 text-gray-400 border-gray-500/30';
     }
   };
 
@@ -138,6 +138,19 @@ function SampleProblems({ topicId, onProblemClick }: { topicId: number; onProble
   const { data: problems } = useQuery({
     queryKey: [`/api/topics/${topicId}/problems`],
   });
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Easy':
+        return 'bg-green-900/20 text-green-400 border-green-500/30';
+      case 'Medium':
+        return 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30';
+      case 'Hard':
+        return 'bg-red-900/20 text-red-400 border-red-500/30';
+      default:
+        return 'bg-gray-900/20 text-gray-400 border-gray-500/30';
+    }
+  };
 
   if (!problems || problems.length === 0) {
     return (
