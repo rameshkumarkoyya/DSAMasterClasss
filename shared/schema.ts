@@ -55,6 +55,8 @@ export const problems = pgTable("problems", {
   title: varchar("title", { length: 200 }).notNull(),
   description: text("description").notNull(),
   difficulty: varchar("difficulty", { length: 10 }).notNull(), // Easy, Medium, Hard
+  pattern: varchar("pattern", { length: 100 }), // Algorithm pattern/category
+  leetcodeUrl: varchar("leetcode_url", { length: 500 }),
   starterCode: text("starter_code"),
   solution: text("solution"),
   hints: text("hints").array(),
