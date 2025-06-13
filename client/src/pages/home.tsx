@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { TrendingUp, Target, Trophy, Clock } from "lucide-react";
+import { TrendingUp, Target, Trophy, Clock, BookOpen, Zap, Award } from "lucide-react";
 
 export default function Home() {
   // Demo stats without authentication
@@ -116,53 +116,59 @@ export default function Home() {
                 </Card>
               </div>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    Overall Progress
-                  </CardTitle>
-                  <Clock className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {progressPercentage}%
-                  </div>
-                  <Progress value={progressPercentage} className="mt-2" />
-                </CardContent>
-              </Card>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                <Card className="relative bg-slate-800/50 border-slate-700/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-300">
+                      Overall Progress
+                    </CardTitle>
+                    <Clock className="h-4 w-4 text-purple-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">
+                      {progressPercentage}%
+                    </div>
+                    <Progress value={progressPercentage} className="mt-2 bg-slate-700" />
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             {/* Recent Activity & Recommendations */}
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Continue Learning */}
-              <Card>
+              <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Continue Learning</CardTitle>
+                  <CardTitle className="text-white flex items-center space-x-2">
+                    <BookOpen className="h-5 w-5 text-purple-400" />
+                    <span>Continue Learning</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {topicsLoading ? (
-                    <div>Loading topics...</div>
+                    <div className="text-gray-400">Loading topics...</div>
                   ) : (
                     <div className="space-y-4">
                       {Array.isArray(topics) ? topics.slice(0, 3).map((topic: any) => (
-                        <div key={topic.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                        <div key={topic.id} className="flex items-center justify-between p-3 border border-slate-600/50 rounded-lg hover:bg-slate-700/50 hover:border-purple-500/30 transition-all duration-200 group">
                           <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                              <span className="text-primary text-sm font-semibold">
+                            <div className="w-8 h-8 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
+                              <span className="text-purple-300 text-sm font-semibold">
                                 {topic.name.charAt(0)}
                               </span>
                             </div>
                             <div>
-                              <h4 className="font-medium text-gray-900">{topic.name}</h4>
-                              <p className="text-sm text-gray-600">{topic.description}</p>
+                              <h4 className="font-medium text-white group-hover:text-purple-300 transition-colors">{topic.name}</h4>
+                              <p className="text-sm text-gray-400">{topic.description}</p>
                             </div>
                           </div>
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20">
                             Continue
                           </Badge>
                         </div>
                       )) : (
-                        <div className="text-gray-500">No topics available</div>
+                        <div className="text-gray-400">No topics available</div>
                       )}
                     </div>
                   )}
@@ -170,44 +176,47 @@ export default function Home() {
               </Card>
 
               {/* Learning Path */}
-              <Card>
+              <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Recommended Next Steps</CardTitle>
+                  <CardTitle className="text-white flex items-center space-x-2">
+                    <Zap className="h-5 w-5 text-yellow-400" />
+                    <span>Recommended Next Steps</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="p-3 border border-blue-200 bg-blue-50 rounded-lg">
-                      <h4 className="font-medium text-blue-900 mb-1">
+                    <div className="p-3 border border-blue-500/30 bg-blue-900/20 rounded-lg hover:bg-blue-900/30 transition-all duration-200 group">
+                      <h4 className="font-medium text-blue-300 mb-1 group-hover:text-blue-200">
                         Master Array Algorithms
                       </h4>
-                      <p className="text-sm text-blue-700 mb-2">
+                      <p className="text-sm text-gray-400 mb-2">
                         Complete sliding window and two-pointer problems
                       </p>
-                      <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+                      <Badge className="bg-blue-600/20 text-blue-300 border-blue-500/30 hover:bg-blue-600/30">
                         Recommended
                       </Badge>
                     </div>
                     
-                    <div className="p-3 border border-green-200 bg-green-50 rounded-lg">
-                      <h4 className="font-medium text-green-900 mb-1">
+                    <div className="p-3 border border-green-500/30 bg-green-900/20 rounded-lg hover:bg-green-900/30 transition-all duration-200 group">
+                      <h4 className="font-medium text-green-300 mb-1 group-hover:text-green-200">
                         Explore Linked Lists
                       </h4>
-                      <p className="text-sm text-green-700 mb-2">
+                      <p className="text-sm text-gray-400 mb-2">
                         Learn pointer manipulation and list operations
                       </p>
-                      <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                      <Badge className="bg-green-600/20 text-green-300 border-green-500/30 hover:bg-green-600/30">
                         Next Topic
                       </Badge>
                     </div>
 
-                    <div className="p-3 border border-purple-200 bg-purple-50 rounded-lg">
-                      <h4 className="font-medium text-purple-900 mb-1">
+                    <div className="p-3 border border-purple-500/30 bg-purple-900/20 rounded-lg hover:bg-purple-900/30 transition-all duration-200 group">
+                      <h4 className="font-medium text-purple-300 mb-1 group-hover:text-purple-200">
                         Practice Mock Interviews
                       </h4>
-                      <p className="text-sm text-purple-700 mb-2">
+                      <p className="text-sm text-gray-400 mb-2">
                         Test your skills with timed coding challenges
                       </p>
-                      <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
+                      <Badge className="bg-purple-600/20 text-purple-300 border-purple-500/30 hover:bg-purple-600/30">
                         Challenge
                       </Badge>
                     </div>
