@@ -4,7 +4,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Play, Send, Maximize2, Loader2, CheckCircle, XCircle, Clock, Zap, BookOpen, Code, Lightbulb } from "lucide-react";
 
@@ -88,16 +87,6 @@ class Solution {
     { name: "StringBuilder", code: "StringBuilder sb = new StringBuilder();" }
   ];
 
-  const handleRun = () => {
-    onRunCode(code);
-    setActiveTab("results");
-  };
-
-  const handleSubmit = () => {
-    onSubmitCode(code);
-    setActiveTab("results");
-  };
-
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       {/* Main Content Tabs */}
@@ -126,16 +115,16 @@ class Solution {
           <ScrollArea className="h-full">
             <div className="max-w-4xl mx-auto space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-white mb-2">{problem?.title}</h1>
+                <h1 className="text-2xl font-bold text-white mb-2">{problem?.title || "Two Sum"}</h1>
                 <div className="flex items-center space-x-3 mb-4">
                   <Badge className={`${
                     problem?.difficulty === 'Easy' ? 'bg-green-600' :
                     problem?.difficulty === 'Medium' ? 'bg-yellow-600' : 'bg-red-600'
                   }`}>
-                    {problem?.difficulty}
+                    {problem?.difficulty || "Easy"}
                   </Badge>
                   <Badge variant="outline" className="text-purple-400 border-purple-500">
-                    {problem?.pattern}
+                    {problem?.pattern || "Hash Table"}
                   </Badge>
                 </div>
               </div>
@@ -146,7 +135,7 @@ class Solution {
                 </CardHeader>
                 <CardContent>
                   <div className="text-gray-300 leading-relaxed">
-                    {problem?.description}
+                    {problem?.description || "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target."}
                   </div>
                 </CardContent>
               </Card>
@@ -233,8 +222,8 @@ class Solution {
                     <div className="bg-slate-900/50 p-4 rounded-lg">
                       <h4 className="font-semibold text-white mb-2">Example: nums = [2,7,11,15], target = 9</h4>
                       <div className="space-y-2 text-sm">
-                        <div>Step 1: i=0, num=2, complement=7, map={} → map={2:0}</div>
-                        <div>Step 2: i=1, num=7, complement=2, map={2:0} → Found! Return [0,1]</div>
+                        <div>Step 1: i=0, num=2, complement=7, map=empty → map=&#123;2:0&#125;</div>
+                        <div>Step 2: i=1, num=7, complement=2, map=&#123;2:0&#125; → Found! Return [0,1]</div>
                       </div>
                     </div>
                   </div>
@@ -442,145 +431,6 @@ class Solution {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-            </Button>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRun}
-              disabled={isRunning || isSubmitting}
-            >
-              {isRunning ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Play className="h-4 w-4 mr-2" />
-              )}
-              Run
-            </Button>
-            <Button 
-              size="sm" 
-              onClick={handleSubmit}
-              disabled={isRunning || isSubmitting}
-              className="bg-primary hover:bg-primary/90"
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4 mr-2" />
-              )}
-              Submit
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Code Editor */}
-      <div className="flex-1 bg-gray-900 text-gray-100 font-mono text-sm overflow-auto">
-        <textarea
-          value={code}
-          onChange={handleCodeChange}
-          className="w-full h-full p-4 bg-transparent resize-none focus:outline-none"
-          style={{ minHeight: '400px' }}
-          spellCheck={false}
-        />
-      </div>
-
-      {/* Test Cases / Results */}
-      <div className="bg-white border-t border-gray-200 h-48">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-            <TabsList className="grid w-fit grid-cols-2">
-              <TabsTrigger value="testcases">Test Cases</TabsTrigger>
-              <TabsTrigger value="results">Test Results</TabsTrigger>
-            </TabsList>
-          </div>
-          
-          <div className="h-40 overflow-y-auto">
-            <TabsContent value="testcases" className="p-4 mt-0">
-              <div className="space-y-3">
-                {problem?.testCases?.map((testCase: any, index: number) => (
-                  <Card key={index} className="border border-gray-200">
-                    <CardContent className="pt-3">
-                      <div className="text-sm">
-                        <div className="font-medium text-gray-900 mb-1">
-                          Test Case {index + 1}
-                        </div>
-                        <div className="text-gray-600 space-y-1">
-                          <div><strong>Input:</strong> {testCase.input}</div>
-                          <div><strong>Expected:</strong> {testCase.expectedOutput}</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )) || (
-                  <div className="text-gray-500 text-sm">No test cases available</div>
-                )}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="results" className="p-4 mt-0">
-              {executionResult ? (
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2 mb-3">
-                    {executionResult.status === 'Accepted' ? (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-red-500" />
-                    )}
-                    <Badge 
-                      variant={executionResult.status === 'Accepted' ? 'default' : 'destructive'}
-                      className={executionResult.status === 'Accepted' ? 'bg-green-100 text-green-800' : ''}
-                    >
-                      {executionResult.status}
-                    </Badge>
-                    {executionResult.runtime && (
-                      <span className="text-sm text-gray-600">
-                        Runtime: {executionResult.runtime}ms
-                      </span>
-                    )}
-                    {executionResult.memory && (
-                      <span className="text-sm text-gray-600">
-                        Memory: {executionResult.memory}KB
-                      </span>
-                    )}
-                  </div>
-                  
-                  {executionResult.results?.map((result: any, index: number) => (
-                    <Card key={index} className={`border ${result.passed ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                      <CardContent className="pt-3">
-                        <div className="text-sm">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium">Test Case {result.testCase}</span>
-                            {result.passed ? (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <XCircle className="h-4 w-4 text-red-500" />
-                            )}
-                          </div>
-                          <div className="space-y-1 text-gray-600">
-                            <div><strong>Input:</strong> {result.input}</div>
-                            <div><strong>Expected:</strong> {result.expectedOutput}</div>
-                            <div><strong>Actual:</strong> {result.actualOutput}</div>
-                            {result.executionTime && (
-                              <div><strong>Time:</strong> {result.executionTime}ms</div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-gray-500 text-sm">
-                  Run your code to see test results
-                </div>
-              )}
-            </TabsContent>
-          </div>
-        </Tabs>
-      </div>
     </div>
   );
 }
