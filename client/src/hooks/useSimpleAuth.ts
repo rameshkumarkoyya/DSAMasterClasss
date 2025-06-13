@@ -56,6 +56,12 @@ export function useSimpleAuth() {
       localStorage.setItem('auth_token', data.token);
       setUser(data.user);
       setIsAuthenticated(true);
+      
+      // Force page reload to ensure clean state update
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+      
       return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
@@ -75,6 +81,12 @@ export function useSimpleAuth() {
       localStorage.setItem('auth_token', data.token);
       setUser(data.user);
       setIsAuthenticated(true);
+      
+      // Force page reload to ensure clean state update
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+      
       return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };
