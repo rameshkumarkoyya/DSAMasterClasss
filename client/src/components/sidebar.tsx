@@ -141,36 +141,85 @@ function SampleProblems({ topicId, onProblemClick }: { topicId: number; onProble
 
   if (!problems || problems.length === 0) {
     return (
-      <div className="px-3 py-2 text-sm text-gray-500">
+      <div className="px-3 py-2 text-sm text-gray-400">
         No problems available
       </div>
     );
   }
 
+  // Group problems by pattern
+  const groupedProblems = problems.reduce((acc: any, problem: any) => {
+    const pattern = problem.pattern || 'Other';
+    if (!acc[pattern]) acc[pattern] = [];
+    acc[pattern].push(problem);
+    return acc;
+  }, {});
+
+  const patternOrder = ['Two Pointers', 'Merge Intervals', 'Sorting', 'Sliding Window', 'Prefix Sums', 'Other'];
+  
+  const getPatternIcon = (pattern: string) => {
+    switch (pattern) {
+      case 'Two Pointers': return '🔄';
+      case 'Merge Intervals': return '📊';
+      case 'Sorting': return '📈';
+      case 'Sliding Window': return '🪟';
+      case 'Prefix Sums': return '🧮';
+      default: return '📝';
+    }
+  };
+
+  const getPatternColor = (pattern: string) => {
+    switch (pattern) {
+      case 'Two Pointers': return 'from-blue-500/10 to-cyan-500/10 border-blue-500/20';
+      case 'Merge Intervals': return 'from-green-500/10 to-emerald-500/10 border-green-500/20';
+      case 'Sorting': return 'from-purple-500/10 to-pink-500/10 border-purple-500/20';
+      case 'Sliding Window': return 'from-orange-500/10 to-red-500/10 border-orange-500/20';
+      case 'Prefix Sums': return 'from-yellow-500/10 to-amber-500/10 border-yellow-500/20';
+      default: return 'from-gray-500/10 to-slate-500/10 border-gray-500/20';
+    }
+  };
+
   return (
-    <>
-      {problems.map((problem: any) => (
-        <Button
-          key={problem.id}
-          variant="ghost"
-          className="w-full px-3 py-2 text-sm text-left flex items-center justify-between hover:bg-gray-100 h-auto"
-          onClick={() => onProblemClick(`/problems/${problem.id}`)}
-        >
-          <span className="text-gray-700">{problem.title}</span>
-          <Badge
-            variant="outline"
-            className={`text-xs ${
-              problem.difficulty === 'Easy' 
-                ? 'border-green-200 text-green-600'
-                : problem.difficulty === 'Medium'
-                ? 'border-yellow-200 text-yellow-600'
-                : 'border-red-200 text-red-600'
-            }`}
-          >
-            {problem.difficulty}
-          </Badge>
-        </Button>
-      ))}
-    </>
+    <div className="space-y-3">
+      {patternOrder.map(pattern => {
+        const patternProblems = groupedProblems[pattern];
+        if (!patternProblems || patternProblems.length === 0) return null;
+
+        return (
+          <div key={pattern} className={`bg-gradient-to-r ${getPatternColor(pattern)} rounded-lg border backdrop-blur-sm p-2`}>
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="text-sm">{getPatternIcon(pattern)}</span>
+              <h4 className="font-medium text-white text-xs">{pattern}</h4>
+              <Badge variant="outline" className="text-xs bg-slate-700/30 text-gray-300 border-slate-600/30">
+                {patternProblems.length}
+              </Badge>
+            </div>
+            <div className="space-y-1">
+              {patternProblems.slice(0, 3).map((problem: any) => (
+                <Button
+                  key={problem.id}
+                  variant="ghost"
+                  className="w-full px-2 py-1 text-xs text-left flex items-center justify-between hover:bg-slate-700/30 h-auto bg-slate-800/20"
+                  onClick={() => onProblemClick(`/problems/${problem.id}`)}
+                >
+                  <span className="text-gray-300 font-medium">{problem.title}</span>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs ${getDifficultyColor(problem.difficulty)}`}
+                  >
+                    {problem.difficulty}
+                  </Badge>
+                </Button>
+              ))}
+              {patternProblems.length > 3 && (
+                <div className="text-xs text-gray-400 text-center py-1">
+                  +{patternProblems.length - 3} more
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
