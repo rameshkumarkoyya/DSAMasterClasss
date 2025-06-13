@@ -586,21 +586,79 @@ class Solution {
                     </div>
                   </TabsContent>
                   
-                  <TabsContent value="results" className="flex-1 p-4">
+                  <TabsContent value="results" className="flex-1 p-4 overflow-y-auto">
                     {executionResult ? (
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-center space-x-2">
-                          {executionResult.success ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500" />
-                          )}
-                          <span className={`font-medium ${
-                            executionResult.success ? 'text-green-400' : 'text-red-400'
-                          }`}>
-                            {executionResult.success ? 'All tests passed!' : 'Some tests failed'}
-                          </span>
+                      <div className="space-y-4 text-sm">
+                        {/* Overall Result */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            {executionResult.success ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                            <span className={`font-medium ${
+                              executionResult.success ? 'text-green-400' : 'text-red-400'
+                            }`}>
+                              {executionResult.output}
+                            </span>
+                          </div>
+                          <div className="text-gray-400">
+                            {executionResult.passedTests}/{executionResult.totalTests} passed
+                          </div>
                         </div>
+
+                        {/* Performance Stats */}
+                        {executionResult.runtime && (
+                          <div className="flex items-center space-x-4 text-xs text-gray-400 border-b border-slate-700/50 pb-2">
+                            <span>Runtime: {executionResult.runtime}ms</span>
+                            <span>Memory: {executionResult.memory}MB</span>
+                          </div>
+                        )}
+
+                        {/* Test Cases */}
+                        {executionResult.testResults && executionResult.testResults.length > 0 && (
+                          <div className="space-y-3">
+                            <h4 className="text-white font-medium">Test Cases:</h4>
+                            {executionResult.testResults.map((test: any, index: number) => (
+                              <div key={index} className="bg-slate-900/50 rounded p-3 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400">Test Case {test.testCase}</span>
+                                  <div className="flex items-center space-x-1">
+                                    {test.passed ? (
+                                      <CheckCircle className="h-3 w-3 text-green-500" />
+                                    ) : (
+                                      <XCircle className="h-3 w-3 text-red-500" />
+                                    )}
+                                    <span className={test.passed ? 'text-green-400' : 'text-red-400'}>
+                                      {test.passed ? 'PASS' : 'FAIL'}
+                                    </span>
+                                    <span className="text-gray-500 text-xs">
+                                      ({test.executionTime}ms)
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-1 text-xs">
+                                  <div>
+                                    <span className="text-gray-400">Input:</span>
+                                    <code className="ml-2 text-blue-400">{test.input}</code>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Expected:</span>
+                                    <code className="ml-2 text-green-400">{test.expectedOutput}</code>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Output:</span>
+                                    <code className={`ml-2 ${test.passed ? 'text-green-400' : 'text-red-400'}`}>
+                                      {test.actualOutput}
+                                    </code>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="text-gray-400 text-sm">

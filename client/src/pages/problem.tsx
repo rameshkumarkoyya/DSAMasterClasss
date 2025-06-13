@@ -105,12 +105,41 @@ export default function Problem() {
     },
   });
 
+  const generateTestCases = (problem: any) => {
+    if (!problem) return [];
+
+    const testCaseMap: any = {
+      "Two Sum": [
+        { input: "[2,7,11,15], target = 9", expectedOutput: "[0,1]" },
+        { input: "[3,2,4], target = 6", expectedOutput: "[1,2]" },
+        { input: "[3,3], target = 6", expectedOutput: "[0,1]" }
+      ],
+      "3Sum": [
+        { input: "[-1,0,1,2,-1,-4]", expectedOutput: "[[-1,-1,2],[-1,0,1]]" },
+        { input: "[0,1,1]", expectedOutput: "[]" },
+        { input: "[0,0,0]", expectedOutput: "[[0,0,0]]" }
+      ],
+      "3Sum Closest": [
+        { input: "[-1,2,1,-4], target = 1", expectedOutput: "2" },
+        { input: "[0,0,0], target = 1", expectedOutput: "0" }
+      ],
+      "Merge Intervals": [
+        { input: "[[1,3],[2,6],[8,10],[15,18]]", expectedOutput: "[[1,6],[8,10],[15,18]]" },
+        { input: "[[1,4],[4,5]]", expectedOutput: "[[1,5]]" }
+      ]
+    };
+
+    return testCaseMap[problem.title] || [
+      { input: "Sample input", expectedOutput: "Sample output" }
+    ];
+  };
+
   const handleRunCode = (code: string) => {
-    if (!problem?.testCases) return;
+    const testCases = generateTestCases(problem);
     
     executeMutation.mutate({
       code,
-      testCases: problem.testCases,
+      testCases,
     });
   };
 
