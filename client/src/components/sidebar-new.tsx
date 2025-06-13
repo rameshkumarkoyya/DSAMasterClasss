@@ -67,59 +67,63 @@ export default function Sidebar() {
     if (!progress) return { completed: 0, total: 0 };
     
     const topicProgress = progress.filter((p: any) => p.topicId === topicId);
-    const completed = topicProgress.filter((p: any) => p.completed).length;
-    const total = topicProgress.length;
+    const completed = topicProgress.filter((p: any) => p.isCompleted).length;
     
-    return { completed, total };
+    return { completed, total: topicProgress.length };
   };
-
-  const progressPercentage = stats ? Math.round((stats.solvedProblems / stats.totalProblems) * 100) : 0;
 
   if (topicsLoading) {
     return (
-      <aside className="w-80 bg-white shadow-sm border-r border-gray-200">
+      <aside className="w-80 bg-slate-900/95 backdrop-blur-sm border-r border-slate-700/50 overflow-y-auto">
         <div className="p-6">
-          <div>Loading topics...</div>
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-slate-700 rounded"></div>
+            <div className="h-4 bg-slate-700 rounded w-3/4"></div>
+          </div>
         </div>
       </aside>
     );
   }
 
   return (
-    <aside className="w-80 bg-white shadow-sm border-r border-gray-200 overflow-y-auto">
+    <aside className="w-80 bg-slate-900/95 backdrop-blur-sm border-r border-slate-700/50 overflow-y-auto">
       <div className="p-6">
+        {/* Stats Summary */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Learning Path</h2>
-          <div className="bg-gray-100 rounded-lg p-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">Overall Progress</span>
-              <span className="text-sm text-primary font-medium">{progressPercentage}%</span>
-            </div>
-            <Progress value={progressPercentage} className="mb-2" />
-            <p className="text-xs text-gray-600">
-              {stats?.solvedProblems || 0} problems solved • {stats?.completedTopics || 0} topics completed
+          <h2 className="text-lg font-semibold text-white mb-3">Your Progress</h2>
+          <div className="space-y-1">
+            <p className="text-sm text-gray-300">
+              Problems Solved: <span className="text-white font-medium">{stats?.solvedProblems || 0}</span> of <span className="text-white font-medium">{stats?.totalProblems || 0}</span> total problems
             </p>
           </div>
         </div>
 
-        <div className="space-y-2">
+        {/* Topics */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Topics</h3>
+            <Badge variant="outline" className="text-xs bg-slate-800/50 text-gray-400 border-slate-600/50">
+              {stats?.solvedProblems || 0} solved • {stats?.completedTopics || 0} completed
+            </Badge>
+          </div>
+          
           {topics?.map((topic: any) => {
-            const { completed, total } = getTopicProgress(topic.id);
             const isExpanded = expandedTopics.has(topic.id);
+            const { completed, total } = getTopicProgress(topic.id);
             const IconComponent = topicIcons[topic.name] || List;
             
             return (
-              <div key={topic.id} className="border border-gray-200 rounded-lg">
+              <div key={topic.id} className="bg-slate-800/30 rounded-lg border border-slate-700/30">
                 <Button
                   variant="ghost"
-                  className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50 h-auto"
+                  className="w-full p-4 flex items-center justify-between hover:bg-slate-700/30 h-auto"
                   onClick={() => toggleTopic(topic.id)}
                 >
                   <div className="flex items-center space-x-3">
-                    <IconComponent className={`h-5 w-5 ${completed === total && total > 0 ? 'text-green-500' : 'text-gray-400'}`} />
-                    <div>
-                      <h3 className="font-medium text-gray-900">{topic.name}</h3>
-                      <p className="text-xs text-gray-600">
+                    <IconComponent className="h-5 w-5 text-purple-400" />
+                    <div className="text-left">
+                      <h3 className="font-medium text-white">{topic.name}</h3>
+                      <p className="text-xs text-gray-400">
                         {completed}/{total} problems completed
                       </p>
                     </div>
@@ -132,12 +136,12 @@ export default function Sidebar() {
                 
                 {isExpanded && (
                   <div className="px-4 pb-3 space-y-1">
-                    {/* Sample problems - in a real app, you'd fetch these */}
                     <SampleProblems 
                       topicId={topic.id} 
                       onProblemClick={setLocation}
                       expandedPatterns={expandedPatterns}
                       togglePattern={togglePattern}
+                      getDifficultyColor={getDifficultyColor}
                     />
                   </div>
                 )}
@@ -154,29 +158,18 @@ function SampleProblems({
   topicId, 
   onProblemClick, 
   expandedPatterns, 
-  togglePattern 
+  togglePattern,
+  getDifficultyColor
 }: { 
   topicId: number; 
   onProblemClick: (path: string) => void;
   expandedPatterns: Set<string>;
   togglePattern: (pattern: string) => void;
+  getDifficultyColor: (difficulty: string) => string;
 }) {
   const { data: problems } = useQuery({
     queryKey: [`/api/topics/${topicId}/problems`],
   });
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Easy':
-        return 'bg-green-900/20 text-green-400 border-green-500/30';
-      case 'Medium':
-        return 'bg-yellow-900/20 text-yellow-400 border-yellow-500/30';
-      case 'Hard':
-        return 'bg-red-900/20 text-red-400 border-red-500/30';
-      default:
-        return 'bg-gray-900/20 text-gray-400 border-gray-500/30';
-    }
-  };
 
   if (!problems || problems.length === 0) {
     return (
