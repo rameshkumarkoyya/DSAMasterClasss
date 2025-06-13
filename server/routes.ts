@@ -9,37 +9,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   setupSimpleAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
-  // Topics routes (public)
+  // Public routes
   app.get('/api/topics', async (req, res) => {
     try {
       const topics = await storage.getTopics();
       res.json(topics);
     } catch (error) {
-      console.error("Error fetching topics:", error);
       res.status(500).json({ message: "Failed to fetch topics" });
     }
   });
 
-  // Problems routes (public)
   app.get('/api/topics/:topicId/problems', async (req, res) => {
     try {
       const topicId = parseInt(req.params.topicId);
       const problems = await storage.getProblemsByTopicId(topicId);
       res.json(problems);
     } catch (error) {
-      console.error("Error fetching problems:", error);
       res.status(500).json({ message: "Failed to fetch problems" });
     }
   });
@@ -53,144 +38,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(problem);
     } catch (error) {
-      console.error("Error fetching problem:", error);
       res.status(500).json({ message: "Failed to fetch problem" });
     }
   });
 
-  // Submissions routes
-  app.post('/api/submissions', isAuthenticated, async (req: any, res) => {
+  app.get('/api/achievements', async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const submissionData = insertSubmissionSchema.parse({
-        ...req.body,
-        userId,
-      });
-
-      const submission = await storage.createSubmission(submissionData);
-
-      // Update user progress if submission is accepted
-      if (submission.status === 'Accepted') {
-        const progressData = insertUserProgressSchema.parse({
-          userId,
-          topicId: req.body.topicId,
-          problemId: submission.problemId,
-          completed: true,
-          attempts: 1,
-          bestSubmissionId: submission.id,
-          completedAt: new Date(),
-        });
-
-        await storage.upsertUserProgress(progressData);
-
-        // Update user XP and level
-        const user = await storage.getUser(userId);
-        if (user) {
-          const xpGain = req.body.difficulty === 'Easy' ? 10 : req.body.difficulty === 'Medium' ? 25 : 50;
-          const newXP = (user.xp || 0) + xpGain;
-          const newLevel = Math.floor(newXP / 100) + 1;
-
-          await storage.upsertUser({
-            ...user,
-            xp: newXP,
-            level: newLevel,
-          });
-        }
-      }
-
-      res.json(submission);
+      const achievements = await storage.getAchievements();
+      res.json(achievements);
     } catch (error) {
-      console.error("Error creating submission:", error);
+      res.status(500).json({ message: "Failed to fetch achievements" });
+    }
+  });
+
+  // Protected routes
+  app.post('/api/submissions', authenticateToken, async (req: any, res) => {
+    try {
+      const submission = insertSubmissionSchema.parse({
+        ...req.body,
+        userId: req.user.id
+      });
+      const result = await storage.createSubmission(submission);
+      res.json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid submission data", errors: error.errors });
+      }
       res.status(500).json({ message: "Failed to create submission" });
     }
   });
 
-  app.get('/api/submissions/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/submissions', authenticateToken, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id.toString();
       const submissions = await storage.getSubmissionsByUserId(userId);
       res.json(submissions);
     } catch (error) {
-      console.error("Error fetching user submissions:", error);
       res.status(500).json({ message: "Failed to fetch submissions" });
     }
   });
 
-  app.get('/api/problems/:problemId/submissions', isAuthenticated, async (req: any, res) => {
+  app.get('/api/problems/:problemId/submissions', authenticateToken, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
       const problemId = parseInt(req.params.problemId);
+      const userId = req.user.id.toString();
       const submissions = await storage.getSubmissionsByProblemId(problemId, userId);
       res.json(submissions);
     } catch (error) {
-      console.error("Error fetching problem submissions:", error);
-      res.status(500).json({ message: "Failed to fetch submissions" });
+      res.status(500).json({ message: "Failed to fetch problem submissions" });
     }
   });
 
-  // User progress routes
-  app.get('/api/progress', isAuthenticated, async (req: any, res) => {
+  app.post('/api/user-progress', authenticateToken, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const progress = insertUserProgressSchema.parse({
+        ...req.body,
+        userId: req.user.id.toString()
+      });
+      const result = await storage.upsertUserProgress(progress);
+      res.json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid progress data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update progress" });
+    }
+  });
+
+  app.get('/api/user-progress', authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.user.id.toString();
       const progress = await storage.getUserProgress(userId);
       res.json(progress);
     } catch (error) {
-      console.error("Error fetching user progress:", error);
-      res.status(500).json({ message: "Failed to fetch progress" });
+      res.status(500).json({ message: "Failed to fetch user progress" });
     }
   });
 
-  app.get('/api/topics/:topicId/progress', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user-progress/topic/:topicId', authenticateToken, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
       const topicId = parseInt(req.params.topicId);
+      const userId = req.user.id.toString();
       const progress = await storage.getUserProgressByTopic(userId, topicId);
       res.json(progress);
     } catch (error) {
-      console.error("Error fetching topic progress:", error);
       res.status(500).json({ message: "Failed to fetch topic progress" });
     }
   });
 
-  // User stats route
-  app.get('/api/stats', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user-achievements', authenticateToken, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const stats = await storage.getUserStats(userId);
-      res.json(stats);
+      const userId = req.user.id.toString();
+      const achievements = await storage.getUserAchievements(userId);
+      res.json(achievements);
     } catch (error) {
-      console.error("Error fetching user stats:", error);
-      res.status(500).json({ message: "Failed to fetch stats" });
+      res.status(500).json({ message: "Failed to fetch user achievements" });
     }
   });
 
-  // Code execution route (simplified - in production would use secure sandbox)
-  app.post('/api/execute', isAuthenticated, async (req, res) => {
+  app.get('/api/user-stats', authenticateToken, async (req: any, res) => {
     try {
-      const { code, testCases } = req.body;
-      
-      // This is a simplified simulation - in production you'd use a secure code execution environment
-      // For now, we'll simulate test case results
-      const results = testCases.map((testCase: any, index: number) => ({
-        testCase: index + 1,
-        passed: Math.random() > 0.3, // 70% pass rate simulation
-        input: testCase.input,
-        expectedOutput: testCase.expectedOutput,
-        actualOutput: testCase.expectedOutput, // Simulated
-        executionTime: Math.floor(Math.random() * 100) + 10,
-      }));
-
-      const allPassed = results.every((result: any) => result.passed);
-      
-      res.json({
-        status: allPassed ? 'Accepted' : 'Wrong Answer',
-        results,
-        runtime: Math.floor(Math.random() * 500) + 50,
-        memory: Math.floor(Math.random() * 1000) + 100,
-      });
+      const userId = req.user.id.toString();
+      const stats = await storage.getUserStats(userId);
+      res.json(stats);
     } catch (error) {
-      console.error("Error executing code:", error);
-      res.status(500).json({ message: "Failed to execute code" });
+      res.status(500).json({ message: "Failed to fetch user stats" });
     }
   });
 

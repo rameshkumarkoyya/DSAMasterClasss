@@ -1,18 +1,9 @@
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction, Express } from 'express';
 import bcrypt from 'bcryptjs';
-import type { Express, Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import { storage } from './storage';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-key';
-
-export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-  };
-}
 
 export function setupSimpleAuth(app: Express) {
   // Register endpoint
@@ -20,14 +11,14 @@ export function setupSimpleAuth(app: Express) {
     try {
       const { email, password, firstName, lastName } = req.body;
 
-      if (!email || !password || !firstName) {
-        return res.status(400).json({ message: 'Email, password, and first name are required' });
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
       }
 
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(400).json({ message: 'User already exists with this email' });
+        return res.status(400).json({ message: 'User already exists' });
       }
 
       // Hash password
@@ -37,18 +28,13 @@ export function setupSimpleAuth(app: Express) {
       const user = await storage.createUser({
         email,
         password: hashedPassword,
-        firstName,
+        firstName: firstName || '',
         lastName: lastName || ''
       });
 
       // Generate JWT token
       const token = jwt.sign(
-        { 
-          id: user.id, 
-          email: user.email, 
-          firstName: user.firstName, 
-          lastName: user.lastName 
-        },
+        { id: user.id, email: user.email },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -79,11 +65,11 @@ export function setupSimpleAuth(app: Express) {
 
       // Find user
       const user = await storage.getUserByEmail(email);
-      if (!user || !user.password) {
+      if (!user) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
 
-      // Verify password
+      // Check password
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
         return res.status(401).json({ message: 'Invalid credentials' });
@@ -91,12 +77,7 @@ export function setupSimpleAuth(app: Express) {
 
       // Generate JWT token
       const token = jwt.sign(
-        { 
-          id: user.id, 
-          email: user.email, 
-          firstName: user.firstName, 
-          lastName: user.lastName 
-        },
+        { id: user.id, email: user.email },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -117,7 +98,7 @@ export function setupSimpleAuth(app: Express) {
   });
 
   // Get current user endpoint
-  app.get('/api/auth/user', authenticateToken, (req: AuthRequest, res: Response) => {
+  app.get('/api/auth/user', authenticateToken, (req: any, res: Response) => {
     res.json(req.user);
   });
 
@@ -128,7 +109,7 @@ export function setupSimpleAuth(app: Express) {
 }
 
 // Authentication middleware
-export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
+export function authenticateToken(req: any, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -136,11 +117,27 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
     return res.status(401).json({ message: 'Access token required' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+  jwt.verify(token, JWT_SECRET, async (err: any, decoded: any) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid or expired token' });
     }
-    req.user = user;
-    next();
+
+    try {
+      const user = await storage.getUserByEmail(decoded.email);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      req.user = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
+      };
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: 'Error verifying user' });
+    }
   });
 }
